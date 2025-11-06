@@ -1,0 +1,15 @@
+<p style="color: green"><%= notice %></p>
+
+<h1><%= @game.name %></h1>
+
+<% if @game.photo.attached? %>
+  <p><%= image_tag @game.photo, style: "max-width: 300px; height: auto;" %></p>
+<% end %>
+
+<p><strong>Objetivo:</strong> <%= @game.objective %></p>
+<p><strong>Descripción:</strong><br><%= simple_format(@game.description) %></p>
+
+<p>
+  <%= link_to "Editar", edit_game_path(@game) %> |
+  <%= link_to "Volver", games_path %>
+</p>

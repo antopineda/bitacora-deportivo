@@ -1,0 +1,39 @@
+<%= form_with(model: game, local: true) do |form| %>
+  <% if game.errors.any? %>
+    <div style="color:red">
+      <h4><%= pluralize(game.errors.count, "error") %> impiden guardar:</h4>
+      <ul>
+        <% game.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "Nombre" %><br>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :objective, "Objetivo" %><br>
+    <%= form.text_field :objective, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :description, "Descripción" %><br>
+    <%= form.text_area :description, rows: 4 %>
+  </div>
+
+  <div>
+    <%= form.label :photo, "Foto" %><br>
+    <%= form.file_field :photo %>
+    <% if game.photo.attached? %>
+      <div style="margin-top:8px">
+        <%= image_tag game.photo, style: "max-width: 200px; height: auto;" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div style="margin-top:12px">
+    <%= form.submit %>
+  </div>
+<% end %>

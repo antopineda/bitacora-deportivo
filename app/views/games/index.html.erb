@@ -1,0 +1,36 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Juegos</h1>
+
+<p><%= link_to "Nuevo juego", new_game_path %></p>
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Foto</th>
+      <th>Nombre</th>
+      <th>Objetivo</th>
+      <th>Descripción</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @games.each do |game| %>
+      <tr>
+        <td>
+          <% if game.photo.attached? %>
+            <%= image_tag game.photo, style: "max-width: 100px; height: auto;" %>
+          <% end %>
+        </td>
+        <td><%= game.name %></td>
+        <td><%= game.objective %></td>
+        <td><%= truncate(game.description, length: 120) %></td>
+        <td>
+          <%= link_to "Ver", game %> |
+          <%= link_to "Editar", edit_game_path(game) %> |
+          <%= link_to "Eliminar", game, data: { turbo_method: :delete, turbo_confirm: "¿Seguro?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
