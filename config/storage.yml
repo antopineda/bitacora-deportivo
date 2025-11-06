@@ -7,6 +7,8 @@ local:
   root: <%= Rails.root.join("storage") %>
 
 # Use bin/rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
+# IMPORTANTE: Asegúrate de que tu bucket S3 existe y tiene el nombre correcto
+# Para cambiar el bucket o región, actualiza los valores abajo
 amazon:
   service: S3
   access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
