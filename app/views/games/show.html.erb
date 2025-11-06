@@ -19,7 +19,7 @@
       <% end %>
       <%= button_to game_path(@game), 
           method: :delete, 
-          data: { turbo_method: :delete, turbo_confirm: "¿Estás seguro de eliminar este juego?" },
+          form: { data: { turbo_confirm: "¿Estás seguro de eliminar este juego?" } },
           class: "btn btn-outline-danger" do %>
         <i class="bi bi-trash-fill me-1"></i> Eliminar
       <% end %>
