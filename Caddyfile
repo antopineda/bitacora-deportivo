@@ -1,0 +1,3 @@
+javidonoso.me, www.javidonoso.me {
+  reverse_proxy web:3000
+}
