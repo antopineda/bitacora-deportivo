@@ -5,7 +5,7 @@ services:
     command: bundle exec puma -C config/puma.rb
     depends_on: [db]
     volumes:
-      - ./app:/app
+      - .:/rails
     networks: [net]
 
   db:
