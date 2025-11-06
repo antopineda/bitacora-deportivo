@@ -1,6 +1,6 @@
 services:
   web:
-    build: ./app
+    build: .
     env_file: .env
     command: bundle exec puma -C config/puma.rb
     depends_on: [db]
