@@ -1,39 +1,49 @@
-<%= form_with(model: game, local: true) do |form| %>
+<%= form_with(model: game, local: true, class: "needs-validation", novalidate: true) do |form| %>
   <% if game.errors.any? %>
-    <div style="color:red">
-      <h4><%= pluralize(game.errors.count, "error") %> impiden guardar:</h4>
-      <ul>
-        <% game.errors.full_messages.each do |msg| %><li><%= msg %></li><% end %>
+    <div class="alert alert-danger" role="alert">
+      <h5 class="alert-heading">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <%= pluralize(game.errors.count, "error") %> impiden guardar:
+      </h5>
+      <ul class="mb-0">
+        <% game.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :name, "Nombre" %><br>
-    <%= form.text_field :name, required: true %>
+  <div class="mb-3">
+    <%= form.label :name, "Nombre", class: "form-label fw-semibold" %>
+    <%= form.text_field :name, required: true, class: "form-control", placeholder: "Ej: Fútbol, Básquetbol, Voleibol" %>
   </div>
 
-  <div>
-    <%= form.label :objective, "Objetivo" %><br>
-    <%= form.text_field :objective, required: true %>
+  <div class="mb-3">
+    <%= form.label :objective, "Objetivo", class: "form-label fw-semibold" %>
+    <%= form.text_field :objective, required: true, class: "form-control", placeholder: "Ej: Mejorar coordinación, Trabajo en equipo" %>
   </div>
 
-  <div>
-    <%= form.label :description, "Descripción" %><br>
-    <%= form.text_area :description, rows: 4 %>
+  <div class="mb-3">
+    <%= form.label :description, "Descripción", class: "form-label fw-semibold" %>
+    <%= form.text_area :description, rows: 5, class: "form-control", placeholder: "Describe el juego, reglas, materiales necesarios..." %>
+    <div class="form-text">Opcional: Agrega detalles sobre cómo se juega</div>
   </div>
 
-  <div>
-    <%= form.label :photo, "Foto" %><br>
-    <%= form.file_field :photo %>
+  <div class="mb-4">
+    <%= form.label :photo, "Foto", class: "form-label fw-semibold" %>
+    <%= form.file_field :photo, class: "form-control", accept: "image/*" %>
+    <div class="form-text">Formatos permitidos: JPG, PNG, GIF</div>
+    
     <% if game.photo.attached? %>
-      <div style="margin-top:8px">
-        <%= image_tag game.photo, style: "max-width: 200px; height: auto;" %>
+      <div class="mt-3">
+        <p class="text-muted mb-2">Vista previa actual:</p>
+        <%= image_tag game.photo, class: "img-thumbnail", style: "max-width: 300px; height: auto;" %>
       </div>
     <% end %>
   </div>
 
-  <div style="margin-top:12px">
-    <%= form.submit %>
+  <div class="d-flex gap-2">
+    <%= form.submit game.persisted? ? "Actualizar juego" : "Crear juego", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", game.persisted? ? game : games_path, class: "btn btn-outline-secondary" %>
   </div>
 <% end %>
