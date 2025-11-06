@@ -7,6 +7,8 @@ services:
     volumes:
       - .:/rails
     networks: [net]
+    environment:
+      - AWS_EC2_METADATA_DISABLED=true
 
   db:
     image: postgres:16
