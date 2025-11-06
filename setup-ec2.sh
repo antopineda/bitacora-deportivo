@@ -44,6 +44,20 @@ else
     echo -e "${GREEN}✓ Docker Compose ya está instalado${NC}"
 fi
 
+# Configurar swap (importante para el build)
+echo ""
+echo "💾 Configurando swap para mejorar el build..."
+if [ ! -f /swapfile ]; then
+    sudo fallocate -l 2G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+    echo -e "${GREEN}✓ Swap de 2GB configurado${NC}"
+else
+    echo -e "${GREEN}✓ Swap ya está configurado${NC}"
+fi
+
 # Configurar firewall (opcional)
 echo ""
 echo "🔥 Configurando firewall UFW..."

@@ -43,9 +43,15 @@ echo ""
 echo "🛑 Deteniendo contenedores existentes..."
 docker-compose down
 
-# Construir nueva imagen
+# Construir nueva imagen (solo si hay cambios)
 echo ""
 echo "🔨 Construyendo imagen Docker..."
+echo "💡 Tip: Esto puede tardar varios minutos la primera vez..."
+echo "💡 Los builds siguientes serán más rápidos gracias al caché"
+
+# Habilitar BuildKit para mejor caché
+export DOCKER_BUILDKIT=1
+
 docker-compose build web
 
 # Levantar servicios

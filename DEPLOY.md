@@ -39,6 +39,16 @@ sudo usermod -aG docker $USER
 # Instalar Docker Compose
 sudo apt install docker-compose -y
 
+# IMPORTANTE: Configurar swap para el build (2GB)
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# Verificar swap
+free -h
+
 # Reiniciar sesión para aplicar cambios
 exit
 # Volver a conectarse por SSH
@@ -117,6 +127,10 @@ nano config/storage.yml
 ### 7. Construir y levantar los contenedores
 
 ```bash
+# PRIMERA VEZ - Esto tomará 10-15 minutos
+# Habilitar BuildKit para mejor caché
+export DOCKER_BUILDKIT=1
+
 # Construir la imagen
 docker-compose build
 
@@ -126,6 +140,8 @@ docker-compose up -d
 # Ver los logs
 docker-compose logs -f
 ```
+
+**Nota**: El primer build puede tardar 10-15 minutos porque instala todas las dependencias. Los builds siguientes serán mucho más rápidos (1-2 minutos) gracias al caché.
 
 ### 8. Configurar la base de datos
 
@@ -193,6 +209,35 @@ docker-compose down -v
 ```
 
 ## 🔍 Troubleshooting
+
+### El build se queda pegado o tarda mucho
+
+Si el build se queda pegado en `bundle install`:
+
+**Causa**: Falta de memoria RAM durante la instalación de gemas con extensiones nativas.
+
+**Solución**:
+
+```bash
+# 1. Verificar memoria disponible
+free -h
+
+# 2. Si no hay swap o es insuficiente, crear/aumentar swap
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
+# 3. Verificar que el swap esté activo
+free -h
+# Deberías ver 2GB en la línea "Swap"
+
+# 4. Intentar el build de nuevo
+docker-compose build web
+```
+
+**Nota**: El build puede tardar 10-20 minutos en instancias pequeñas (t2.micro). Es normal.
 
 ### La aplicación no arranca
 
