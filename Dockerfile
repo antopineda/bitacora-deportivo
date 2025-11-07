@@ -6,7 +6,6 @@ FROM ruby:${RUBY_VERSION}-bookworm-slim AS base
 
 WORKDIR /rails
 
-<<<<<<< HEAD
 # Paquetes base de runtime
 RUN set -eux; \
     apt-get -o Acquire::Retries=3 update -qq; \
@@ -17,19 +16,6 @@ RUN set -eux; \
       libvips \
       postgresql-client; \
     rm -rf /var/lib/apt/lists/*
-=======
-# Paquetes base (producción)
-RUN set -eux; \
-    apt-get update -qq; \
-    if apt-cache show libvips >/dev/null 2>&1; then \
-      LIBVIPS_PKG=libvips; \
-    else \
-      LIBVIPS_PKG=libvips42; \
-    fi; \
-    apt-get install --no-install-recommends -y \
-      curl libjemalloc2 "$LIBVIPS_PKG" postgresql-client; \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
->>>>>>> f63e40634d4a69e29889569c9212496783d73367
 
 # Variables comunes de producción
 ENV RAILS_ENV=production \
@@ -45,7 +31,6 @@ FROM base AS build
 
 # Paquetes para compilar gems
 RUN set -eux; \
-<<<<<<< HEAD
     apt-get -o Acquire::Retries=3 update -qq; \
     apt-get install -y --no-install-recommends \
       build-essential \
@@ -54,12 +39,6 @@ RUN set -eux; \
       libyaml-dev \
       pkg-config; \
     rm -rf /var/lib/apt/lists/*
-=======
-    apt-get update -qq; \
-    apt-get install --no-install-recommends -y \
-      build-essential git libpq-dev libyaml-dev pkg-config; \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
->>>>>>> f63e40634d4a69e29889569c9212496783d73367
 
 # En build permitimos actualizar lock y compilar sin modo frozen
 ENV BUNDLE_DEPLOYMENT=0 \
