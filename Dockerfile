@@ -2,7 +2,7 @@
 
 # --- Imagen base estable (Debian bookworm) ---
 ARG RUBY_VERSION=3.2.9
-FROM ruby:${RUBY_VERSION}-bookworm-slim AS base
+FROM docker.io/library/ruby:${RUBY_VERSION}-slim AS base
 
 WORKDIR /rails
 
@@ -49,11 +49,14 @@ ENV BUNDLE_DEPLOYMENT=0 \
 # Instalar gems primero (mejor cache)
 COPY Gemfile Gemfile.lock ./
 
-# Cache de bundler entre builds (requiere BuildKit)
-RUN --mount=type=cache,target=/usr/local/bundle \
+# Instalar gems y precompilar bootsnap de gems
+RUN --mount=type=cache,target=/tmp/bundle-cache \
+    bundle config set --local path /tmp/bundle-cache && \
     bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
+    bundle config set --local path "${BUNDLE_PATH}" && \
+    bundle install && \
+    bundle exec bootsnap precompile --gemfile && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
 # Copiar el resto del código
 COPY . .
