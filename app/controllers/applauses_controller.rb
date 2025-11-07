@@ -5,6 +5,10 @@ class ApplausesController < ApplicationController
     @applauses = Applause.order(created_at: :desc)
   end
 
+  def roulette
+    @applauses = Applause.all
+  end
+
   def show
   end
 

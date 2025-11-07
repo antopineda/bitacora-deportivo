@@ -13,9 +13,15 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   resources :games
-  get "ruleta", to: "games#roulette", as: :roulette
   resources :dynamics
   resources :applauses
   
-  root "games#index"
+  # Rutas de ruletas
+  get "ruleta", to: "pages#roulette_index", as: :roulette
+  get "ruleta/juegos", to: "games#roulette", as: :roulette_games
+  get "ruleta/dinamicas", to: "dynamics#roulette", as: :roulette_dynamics
+  get "ruleta/aplausos", to: "applauses#roulette", as: :roulette_applauses
+  get "ruleta/todo", to: "pages#roulette_all", as: :roulette_all
+  
+  root "pages#roulette_index"
 end

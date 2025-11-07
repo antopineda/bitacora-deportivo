@@ -5,6 +5,10 @@ class DynamicsController < ApplicationController
     @dynamics = Dynamic.order(created_at: :desc)
   end
 
+  def roulette
+    @dynamics = Dynamic.all
+  end
+
   def show
   end
 
