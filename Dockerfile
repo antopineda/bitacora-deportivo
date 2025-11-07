@@ -8,10 +8,16 @@ FROM docker.io/library/ruby:${RUBY_VERSION}-slim AS base
 WORKDIR /rails
 
 # Paquetes base (producción)
-RUN apt-get update -qq && \
+RUN set -eux; \
+    apt-get update -qq; \
+    if apt-cache show libvips >/dev/null 2>&1; then \
+      LIBVIPS_PKG=libvips; \
+    else \
+      LIBVIPS_PKG=libvips42; \
+    fi; \
     apt-get install --no-install-recommends -y \
-      curl libjemalloc2 libvips postgresql-client && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+      curl libjemalloc2 "$LIBVIPS_PKG" postgresql-client; \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
 # Variables comunes de producción (solo para la imagen final; en build las sobreescribimos)
 ENV RAILS_ENV=production \
@@ -26,10 +32,11 @@ ENV RAILS_ENV=production \
 FROM base AS build
 
 # Paquetes para compilar gems
-RUN apt-get update -qq && \
+RUN set -eux; \
+    apt-get update -qq; \
     apt-get install --no-install-recommends -y \
-      build-essential git libpq-dev libyaml-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+      build-essential git libpq-dev libyaml-dev pkg-config; \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
 # ⚠️ En build NO usamos deployment/frozen para que pueda regenerar Gemfile.lock si cambian dependencias
 ENV BUNDLE_DEPLOYMENT=0 \
