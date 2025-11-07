@@ -13,5 +13,8 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   resources :games
+  resources :dynamics
+  resources :applauses
+  
   root "games#index"
 end
