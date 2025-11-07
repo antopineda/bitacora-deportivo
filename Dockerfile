@@ -6,16 +6,15 @@ FROM docker.io/library/ruby:${RUBY_VERSION}-slim AS base
 
 WORKDIR /rails
 
-# Paquetes base de runtime
+# Paquetes base de runtime (mínimos para producción)
 RUN set -eux; \
     apt-get -o Acquire::Retries=3 update -qq; \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
       libjemalloc2 \
-      libvips \
       postgresql-client; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Variables comunes de producción
 ENV RAILS_ENV=production \
@@ -49,14 +48,13 @@ ENV BUNDLE_DEPLOYMENT=0 \
 # Instalar gems primero (mejor cache)
 COPY Gemfile Gemfile.lock ./
 
-# Instalar gems y precompilar bootsnap de gems
-RUN --mount=type=cache,target=/tmp/bundle-cache \
-    bundle config set --local path /tmp/bundle-cache && \
-    bundle install && \
-    bundle config set --local path "${BUNDLE_PATH}" && \
-    bundle install && \
-    bundle exec bootsnap precompile --gemfile && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
+# Instalar gems de forma más eficiente en espacio
+RUN bundle config set --local without 'development test' && \
+    bundle install --jobs 1 --retry 3 && \
+    bundle clean --force && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git \
+           /tmp/* /var/tmp/* && \
+    bundle exec bootsnap precompile --gemfile
 
 # Copiar el resto del código
 COPY . .
