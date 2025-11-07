@@ -1,3 +1,12 @@
-javidonoso.me, www.javidonoso.me {
-  reverse_proxy web:3000
+# Caddyfile temporal - Solo HTTP (sin SSL)
+# Usar solo mientras esperamos que se levante el límite de Let's Encrypt
+
+{
+	# Desactiva HTTPS automático temporalmente
+	auto_https off
+}
+
+:80 {
+	encode zstd gzip
+	reverse_proxy web:3000
 }

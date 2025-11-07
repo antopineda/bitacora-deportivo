@@ -51,6 +51,9 @@ Rails.application.configure do
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # Para producción siempre debe ser true, solo usa FORCE_SSL=false para testing local
   config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
+  config.hosts << "javidonoso.me"
+  config.hosts << "www.javidonoso.me"
+
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
