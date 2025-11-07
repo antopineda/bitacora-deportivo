@@ -13,5 +13,6 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   resources :games
+  get "ruleta", to: "games#roulette", as: :roulette
   root "games#index"
 end

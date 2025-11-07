@@ -5,6 +5,10 @@ class GamesController < ApplicationController
     @games = Game.order(created_at: :desc)
   end
 
+  def roulette
+    @games = Game.all
+  end
+
   def show
   end
 

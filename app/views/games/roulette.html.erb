@@ -1,0 +1,225 @@
+<div class="container py-5">
+  <div class="text-center mb-4">
+    <h1 class="display-4 fw-bold mb-3">🎰 Ruleta de Juegos</h1>
+    <p class="text-muted">¡Gira la ruleta y descubre qué juego te toca!</p>
+  </div>
+
+  <% if @games.empty? %>
+    <div class="alert alert-warning text-center">
+      No hay juegos disponibles. <%= link_to "Crea uno aquí", new_game_path, class: "alert-link" %>.
+    </div>
+  <% else %>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <!-- Ruleta -->
+        <div class="roulette-container mb-4">
+          <div class="roulette-arrow">▼</div>
+          <canvas id="rouletteCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <!-- Botón de girar -->
+        <div class="text-center mb-4">
+          <button id="spinBtn" class="btn btn-primary btn-lg px-5 py-3">
+            <i class="bi bi-arrow-clockwise"></i> ¡GIRAR RULETA!
+          </button>
+        </div>
+
+        <!-- Resultado -->
+        <div id="result" class="result-card d-none">
+          <div class="card shadow-lg">
+            <div class="card-body text-center p-4">
+              <h2 class="card-title mb-3">🎉 ¡Juego Seleccionado!</h2>
+              <h3 id="gameName" class="text-primary mb-3"></h3>
+              <p id="gameObjective" class="text-muted mb-4"></p>
+              <a id="gameLink" href="#" class="btn btn-success">Ver detalles del juego</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .roulette-container {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    margin: 0 auto;
+  }
+
+  .roulette-arrow {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 40px;
+    color: #dc3545;
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+
+  #rouletteCanvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: 50%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .result-card {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #spinBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const games = <%= raw @games.map { |g| { id: g.id, name: g.name, objective: g.objective } }.to_json %>;
+    
+    if (games.length === 0) return;
+
+    const canvas = document.getElementById('rouletteCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spinBtn');
+    const result = document.getElementById('result');
+    
+    let currentRotation = 0;
+    let isSpinning = false;
+
+    // Colores vibrantes para la ruleta
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+      '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
+      '#FF8FA3', '#6C5CE7', '#00B4D8', '#F77F00', '#06FFA5'
+    ];
+
+    function drawRoulette(rotation = 0) {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = 240;
+      const sliceAngle = (2 * Math.PI) / games.length;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(rotation);
+
+      // Dibujar cada segmento
+      games.forEach((game, index) => {
+        const startAngle = index * sliceAngle;
+        const endAngle = startAngle + sliceAngle;
+        const color = colors[index % colors.length];
+
+        // Segmento
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Borde
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Número del juego
+        ctx.save();
+        const textAngle = startAngle + sliceAngle / 2;
+        ctx.rotate(textAngle);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 24px Arial';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(index + 1, radius * 0.7, 8);
+        ctx.restore();
+      });
+
+      // Círculo central
+      ctx.beginPath();
+      ctx.arc(0, 0, 30, 0, 2 * Math.PI);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function spinRoulette() {
+      if (isSpinning) return;
+      
+      isSpinning = true;
+      spinBtn.disabled = true;
+      result.classList.add('d-none');
+
+      // Rotación aleatoria (5-8 vueltas completas + ángulo aleatorio)
+      const extraSpins = 5 + Math.random() * 3;
+      const randomAngle = Math.random() * 2 * Math.PI;
+      const totalRotation = currentRotation + (extraSpins * 2 * Math.PI) + randomAngle;
+      
+      const duration = 4000; // 4 segundos
+      const startTime = Date.now();
+      const startRotation = currentRotation;
+
+      function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing: decelera al final
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        currentRotation = startRotation + (totalRotation - startRotation) * easeOut;
+        
+        drawRoulette(currentRotation);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Calcular el juego ganador
+          const normalizedRotation = (currentRotation % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+          const sliceAngle = (2 * Math.PI) / games.length;
+          // La flecha apunta hacia arriba (270 grados o 3π/2)
+          const arrowAngle = (Math.PI * 3 / 2);
+          const adjustedAngle = (arrowAngle - normalizedRotation + 2 * Math.PI) % (2 * Math.PI);
+          const winnerIndex = Math.floor(adjustedAngle / sliceAngle);
+          const winner = games[winnerIndex];
+
+          // Mostrar resultado
+          setTimeout(() => {
+            document.getElementById('gameName').textContent = winner.name;
+            document.getElementById('gameObjective').textContent = winner.objective;
+            document.getElementById('gameLink').href = `/games/${winner.id}`;
+            result.classList.remove('d-none');
+            isSpinning = false;
+            spinBtn.disabled = false;
+          }, 500);
+        }
+      }
+
+      animate();
+    }
+
+    // Dibujar ruleta inicial
+    drawRoulette();
+
+    // Event listener
+    spinBtn.addEventListener('click', spinRoulette);
+  });
+</script>
