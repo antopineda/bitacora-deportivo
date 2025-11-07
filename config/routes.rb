@@ -14,5 +14,8 @@ Rails.application.routes.draw do
 
   resources :games
   get "ruleta", to: "games#roulette", as: :roulette
+  resources :dynamics
+  resources :applauses
+  
   root "games#index"
 end
