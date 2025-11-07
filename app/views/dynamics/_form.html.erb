@@ -30,9 +30,9 @@
   </div>
 
   <div class="mb-4">
-    <%= form.label :photo, "Foto", class: "form-label fw-semibold" %>
+    <%= form.label :photo, "Foto (opcional)", class: "form-label fw-semibold" %>
     <%= form.file_field :photo, class: "form-control", accept: "image/*" %>
-    <div class="form-text">Formatos permitidos: JPG, PNG, GIF</div>
+    <div class="form-text">Opcional: Puedes agregar una imagen ilustrativa si lo deseas</div>
     
     <% if dynamic.photo.attached? %>
       <div class="mt-3">
