@@ -1,0 +1,54 @@
+<%= form_with(model: reflection, local: true) do |form| %>
+  <% if reflection.errors.any? %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <h5 class="alert-heading">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <%= pluralize(reflection.errors.count, "error") %> impidieron guardar esta reflexión:
+      </h5>
+      <ul class="mb-0">
+        <% reflection.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  <% end %>
+
+  <div class="mb-4">
+    <%= form.label :name, "Nombre", class: "form-label fw-semibold" %>
+    <%= form.text_field :name, class: "form-control form-control-lg", placeholder: "Tu nombre completo", required: true %>
+    <div class="form-text">¿Quién comparte esta reflexión?</div>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :profile_photo, "Foto de Perfil", class: "form-label fw-semibold" %>
+    <%= form.file_field :profile_photo, class: "form-control", accept: "image/*" %>
+    <div class="form-text">Selecciona una foto para tu perfil</div>
+    
+    <% if reflection.profile_photo.attached? %>
+      <div class="mt-3">
+        <p class="text-muted mb-2">Vista previa actual:</p>
+        <%= image_tag reflection.profile_photo, 
+            class: "rounded-circle border border-3 border-light shadow", 
+            style: "width: 120px; height: 120px; object-fit: cover;" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :reflection, "Reflexión", class: "form-label fw-semibold" %>
+    <%= form.text_area :reflection, 
+        class: "form-control", 
+        rows: 8, 
+        placeholder: "Comparte tus pensamientos, aprendizajes o experiencias sobre la bitácora...", 
+        required: true %>
+    <div class="form-text">Expresa lo que significó para ti este proyecto</div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= form.submit class: "btn btn-primary btn-lg px-4" do %>
+      <i class="bi bi-check-circle-fill me-2"></i>
+    <% end %>
+    <%= link_to "Cancelar", reflections_path, class: "btn btn-outline-secondary btn-lg" %>
+  </div>
+<% end %>

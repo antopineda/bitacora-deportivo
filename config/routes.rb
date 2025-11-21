@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   resources :games
   resources :dynamics
   resources :applauses
+  resources :reflections
   
   # Rutas de ruletas
   get "ruleta", to: "pages#roulette_index", as: :roulette

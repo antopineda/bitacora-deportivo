@@ -1,0 +1,77 @@
+<div class="container py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="mb-2">
+        <i class="bi bi-chat-heart text-primary"></i>
+        Reflexiones
+      </h1>
+      <p class="text-muted mb-0">
+        <i class="bi bi-people"></i>
+        <%= @reflections.count %> <%= @reflections.count == 1 ? 'reflexión compartida' : 'reflexiones compartidas' %>
+      </p>
+    </div>
+    <%= link_to new_reflection_path, class: "btn btn-primary btn-lg" do %>
+      <i class="bi bi-plus-circle me-2"></i>Agregar Reflexión
+    <% end %>
+  </div>
+
+  <!-- Grid de Reflexiones -->
+  <% if @reflections.any? %>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+      <% @reflections.each do |reflection| %>
+        <div class="col">
+          <div class="card h-100 shadow-sm hover-shadow">
+            <div class="card-body text-center d-flex flex-column">
+              <!-- Foto de perfil circular -->
+              <div class="mb-3">
+                <% if reflection.profile_photo.attached? %>
+                  <%= image_tag reflection.profile_photo, 
+                      class: "rounded-circle border border-3 border-light shadow", 
+                      style: "width: 120px; height: 120px; object-fit: cover;" %>
+                <% else %>
+                  <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto border border-3 border-light shadow" 
+                       style="width: 120px; height: 120px;">
+                    <i class="bi bi-person-circle text-muted" style="font-size: 4rem;"></i>
+                  </div>
+                <% end %>
+              </div>
+
+              <!-- Nombre -->
+              <h5 class="card-title mb-3 fw-bold"><%= reflection.name %></h5>
+
+              <!-- Botón Ver Reflexión -->
+              <div class="mt-auto">
+                <%= link_to reflection, class: "btn btn-outline-primary w-100" do %>
+                  <i class="bi bi-eye-fill me-2"></i>Ver Reflexión
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Estado vacío -->
+    <div class="text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-chat-heart text-muted" style="font-size: 5rem;"></i>
+      </div>
+      <h3 class="text-muted mb-3">Aún no hay reflexiones</h3>
+      <p class="text-muted mb-4">Sé el primero en compartir una reflexión sobre la bitácora</p>
+      <%= link_to new_reflection_path, class: "btn btn-primary btn-lg" do %>
+        <i class="bi bi-plus-circle me-2"></i>Agregar Primera Reflexión
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .hover-shadow {
+    transition: all 0.3s ease;
+  }
+  .hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+</style>

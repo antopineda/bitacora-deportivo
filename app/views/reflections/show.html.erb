@@ -1,0 +1,74 @@
+<div class="container py-4">
+  <!-- Botón volver -->
+  <div class="mb-4">
+    <%= link_to reflections_path, class: "btn btn-outline-secondary" do %>
+      <i class="bi bi-arrow-left"></i> Volver a Reflexiones
+    <% end %>
+  </div>
+
+  <!-- Card principal con la reflexión -->
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+      <div class="card shadow-lg border-0">
+        <div class="card-body p-5">
+          <!-- Foto de perfil circular grande -->
+          <div class="text-center mb-4">
+            <% if @reflection.profile_photo.attached? %>
+              <%= image_tag @reflection.profile_photo, 
+                  class: "rounded-circle border border-4 border-primary shadow", 
+                  style: "width: 180px; height: 180px; object-fit: cover;" %>
+            <% else %>
+              <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto border border-4 border-primary shadow" 
+                   style="width: 180px; height: 180px;">
+                <i class="bi bi-person-circle text-muted" style="font-size: 6rem;"></i>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Nombre en grande -->
+          <h1 class="text-center mb-4 fw-bold"><%= @reflection.name %></h1>
+
+          <!-- Divider decorativo -->
+          <div class="text-center mb-4">
+            <i class="bi bi-heart-fill text-danger"></i>
+            <i class="bi bi-heart-fill text-danger mx-2"></i>
+            <i class="bi bi-heart-fill text-danger"></i>
+          </div>
+
+          <!-- Reflexión -->
+          <div class="reflection-content mb-4">
+            <p class="lead text-muted fst-italic lh-lg" style="white-space: pre-wrap;"><%= @reflection.reflection %></p>
+          </div>
+
+          <!-- Metadata -->
+          <div class="text-center text-muted small mb-4">
+            <i class="bi bi-calendar3"></i>
+            Compartida el <%= l(@reflection.created_at, format: :long) %>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="d-flex gap-2 justify-content-center">
+            <%= link_to edit_reflection_path(@reflection), class: "btn btn-outline-primary" do %>
+              <i class="bi bi-pencil-fill me-2"></i>Editar
+            <% end %>
+            <%= button_to @reflection, 
+                method: :delete, 
+                form: { data: { turbo_confirm: "¿Estás seguro de eliminar esta reflexión?" } },
+                class: "btn btn-outline-danger" do %>
+              <i class="bi bi-trash-fill me-2"></i>Eliminar
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .reflection-content {
+    padding: 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+    border-radius: 15px;
+    border-left: 4px solid #0d6efd;
+  }
+</style>
