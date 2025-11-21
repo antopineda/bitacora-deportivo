@@ -1,6 +1,0 @@
-# Caddyfile temporal - Solo HTTP (sin SSL)
-# Usar solo mientras esperamos que se levante el límite de Let's Encrypt
-
-http://javidonoso.me, http://www.javidonoso.me {
-  reverse_proxy web:3000
-}

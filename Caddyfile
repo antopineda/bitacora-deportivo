@@ -1,12 +1,28 @@
-# Caddyfile temporal - Solo HTTP (sin SSL)
-# Usar solo mientras esperamos que se levante el límite de Let's Encrypt
+# Caddyfile - Configuración de producción con HTTPS automático
+# Caddy obtendrá y renovará automáticamente los certificados SSL de Let's Encrypt
 
-{
-	# Desactiva HTTPS automático temporalmente
-	auto_https off
-}
-
-:80 {
+javidonoso.me, www.javidonoso.me {
+	# Habilita compresión para mejor rendimiento
 	encode zstd gzip
+	
+	# Proxy inverso hacia el servidor Rails
 	reverse_proxy web:3000
+	
+	# Headers de seguridad
+	header {
+		# Previene clickjacking
+		X-Frame-Options SAMEORIGIN
+		# Previene MIME type sniffing
+		X-Content-Type-Options nosniff
+		# XSS Protection
+		X-XSS-Protection "1; mode=block"
+		# Referrer Policy
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+	
+	# Logs para debugging
+	log {
+		output stdout
+		format console
+	}
 }

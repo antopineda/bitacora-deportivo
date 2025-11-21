@@ -49,8 +49,9 @@ Rails.application.configure do
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # Para producción siempre debe ser true, solo usa FORCE_SSL=false para testing local
-  config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
+  config.force_ssl = true
+  
+  # Dominios permitidos
   config.hosts << "javidonoso.me"
   config.hosts << "www.javidonoso.me"
 

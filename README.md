@@ -1,26 +1,28 @@
 # 🏅 Bitácora Deportivo
 
-Aplicación web para gestionar y documentar juegos y actividades deportivas.
+Aplicación web para gestionar y documentar juegos, dinámicas y aplausos deportivos.
 
 ## 🚀 Stack Tecnológico
 
 - **Ruby**: 3.2.9
 - **Rails**: 7.2.3
 - **Base de datos**: PostgreSQL 16
-- **Almacenamiento**: AWS S3
+- **Almacenamiento**: AWS S3 (Active Storage)
 - **Servidor web**: Puma
-- **Proxy reverso**: Caddy
+- **Proxy reverso**: Caddy 2 (SSL automático con Let's Encrypt)
 - **Contenedores**: Docker & Docker Compose
 - **Frontend**: Bootstrap 5, Hotwire (Turbo & Stimulus)
 
 ## 📦 Características
 
 - ✅ CRUD completo de juegos deportivos
-- ✅ Carga de imágenes con Active Storage
-- ✅ Almacenamiento en S3
-- ✅ SSL automático con Caddy
-- ✅ Diseño responsive con Bootstrap
+- ✅ CRUD completo de dinámicas
+- ✅ CRUD completo de aplausos
+- ✅ Carga de imágenes con Active Storage + S3
+- ✅ SSL automático con Caddy y Let's Encrypt
+- ✅ Diseño responsive con Bootstrap 5
 - ✅ Dockerizado para fácil deploy
+- ✅ Optimizado para EC2 con bajo consumo de RAM
 
 ## 🛠️ Desarrollo Local
 
@@ -42,36 +44,55 @@ cp .env.example .env
 # Editar .env y configurar las variables necesarias
 nano .env
 
-# Levantar con configuración local (sin SSL)
-docker-compose -f docker-compose.local.yml build
-docker-compose -f docker-compose.local.yml up -d
+# Construir y levantar contenedores
+docker compose build
+docker compose up -d
 
 # Ejecutar migraciones
-docker-compose -f docker-compose.local.yml exec web bin/rails db:prepare
+docker compose exec web bin/rails db:prepare
 
 # Acceder a la aplicación
 open http://localhost:3000
 ```
 
-### Configurar AWS S3 (Opcional para desarrollo local)
+## 🚀 Deploy en Producción (EC2)
 
-Ver instrucciones detalladas en [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
+### Pre-requisitos en EC2
+- Ubuntu 22.04 LTS
+- Docker y Docker Compose instalados
+- Dominio apuntando a la IP del servidor
+- Mínimo 16-20GB de disco
+- 2GB de swap recomendado
 
-## 🚀 Deploy en Producción
-
-Para desplegar en EC2 con dominio personalizado, sigue la guía completa en [DEPLOY.md](DEPLOY.md)
-
-### Resumen rápido:
+### Despliegue inicial
 
 ```bash
 # En EC2
 git clone https://github.com/antopineda/bitacora-deportivo.git
 cd bitacora-deportivo
-cp .env.production .env
-# Editar .env con tus valores
-docker-compose build
-docker-compose up -d
-docker-compose exec web bin/rails db:prepare
+
+# Configurar variables de entorno
+cp .env.example .env
+nano .env
+# Configurar: RAILS_MASTER_KEY, DATABASE_URL, AWS_ACCESS_KEY_ID, 
+# AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_BUCKET
+
+# Construir y levantar
+docker compose build
+docker compose up -d
+
+# Preparar base de datos
+docker compose exec web bin/rails db:prepare
+```
+
+### Actualizaciones
+
+```bash
+cd ~/bitacora-deportivo
+git pull
+docker compose build web
+docker compose up -d
+docker compose exec web bin/rails db:migrate
 ```
 
 ## 📁 Estructura del Proyecto
@@ -79,67 +100,80 @@ docker-compose exec web bin/rails db:prepare
 ```
 bitacora-deportivo/
 ├── app/
-│   ├── controllers/     # Controladores
-│   ├── models/          # Modelos
-│   ├── views/           # Vistas
+│   ├── controllers/     # game_controller, dynamics_controller, applauses_controller
+│   ├── models/          # game, dynamic, applause (con Active Storage)
+│   ├── views/           # Vistas Bootstrap 5
+│   │   ├── games/
+│   │   ├── dynamics/
+│   │   └── applauses/
 │   └── assets/          # Assets (CSS, JS)
 ├── config/
-│   ├── database.yml     # Configuración BD
+│   ├── database.yml     # Configuración PostgreSQL
 │   ├── storage.yml      # Configuración S3
-│   └── routes.rb        # Rutas
+│   ├── routes.rb        # Rutas de la app
+│   └── environments/
+│       └── production.rb  # force_ssl = true
 ├── db/
-│   └── migrate/         # Migraciones
-├── docker-compose.yml   # Producción
-├── docker-compose.local.yml  # Desarrollo local
-├── Dockerfile           # Imagen Docker
-├── Caddyfile           # Configuración Caddy (producción)
-└── Caddyfile.local     # Configuración Caddy (local)
+│   └── migrate/         # Migraciones (games, dynamics, applauses, active_storage)
+├── docker-compose.yml   # Configuración producción (web, db, caddy)
+├── Dockerfile           # Imagen optimizada para EC2
+└── Caddyfile           # SSL automático con Let's Encrypt
 ```
 
 ## 🔧 Comandos Útiles
 
 ```bash
 # Ver logs
-docker-compose logs -f web
+docker compose logs -f web
+docker compose logs -f caddy
 
 # Consola de Rails
-docker-compose exec web bin/rails console
+docker compose exec web bin/rails console
 
 # Ejecutar migraciones
-docker-compose exec web bin/rails db:migrate
+docker compose exec web bin/rails db:migrate
 
 # Ver estado de migraciones
-docker-compose exec web bin/rails db:migrate:status
+docker compose exec web bin/rails db:migrate:status
 
 # Reiniciar servicios
-docker-compose restart web
+docker compose restart web
+docker compose restart caddy
+
+# Ver estado de contenedores
+docker compose ps
 ```
 
-## 🌐 Configuración de Dominio
+## 🌐 SSL y Dominio
 
-El proyecto está configurado para usar `www.javidonoso.me`. Para cambiar el dominio:
+El proyecto usa **Caddy 2** que obtiene automáticamente certificados SSL de Let's Encrypt:
 
-1. Edita `Caddyfile`
-2. Apunta tu dominio a la IP de tu servidor EC2
-3. Caddy obtendrá automáticamente certificados SSL de Let's Encrypt
+- **Dominio**: www.javidonoso.me y javidonoso.me
+- **SSL**: Renovación automática cada 90 días
+- **HTTPS**: Forzado en producción
+- **Límite Let's Encrypt**: 5 certificados por dominio por semana
 
-## 📝 Documentación Adicional
+### Troubleshooting SSL
+Si llegas al límite de certificados:
+- Espera 7 días desde el último certificado
+- Los certificados se renuevan automáticamente
+- No requiere intervención manual
 
-- [Guía de Deploy](DEPLOY.md) - Instrucciones completas de deploy en EC2
-- [Configuración AWS S3](AWS_S3_SETUP.md) - Setup de almacenamiento S3
+## 🔐 Variables de Entorno Requeridas
 
-## 🤝 Contribuir
+```bash
+# Rails
+RAILS_MASTER_KEY=<tu_master_key>
+DATABASE_URL=postgres://postgres:password@db:5432/app_production
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+# AWS S3
+AWS_ACCESS_KEY_ID=<tu_access_key>
+AWS_SECRET_ACCESS_KEY=<tu_secret_key>
+AWS_REGION=us-east-2
+AWS_BUCKET=bitacora-deportivo-prod
+```
 
 ## 📄 Licencia
 
 Este proyecto es privado y de uso educativo.
-
-## 👥 Autor
-
 - Antonia Pineda - [@antopineda](https://github.com/antopineda)
